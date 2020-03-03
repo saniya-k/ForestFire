@@ -57,14 +57,14 @@ for i in range(len(geocode)):
         headr=df.iloc[31,:]
         headr.reset_index(inplace=True, drop=True)
         headr.replace('\s+', ',',regex=True,inplace=True) #separate out the header
-        headr[0]=headr[0]+",Brigade"
+        headr[0]=headr[0]+",Brigade"+",Latitude"+",Longitude";
         list_of_weather.append(headr) 
     df=df[32:(len(df)-1)]#cleaning remove header, indexes
     df.replace('\s+', ',',regex=True,inplace=True) #make csv space delimited to comma delimited
     df=df.iloc[:,-1]#cleaning 
     df.name=brigade[0]
-    formatted_data=df+","+brigade[0]
+    formatted_data=df+","+brigade[0]+","+str(geocode.loc[i,'latitude'])+","+str(geocode.loc[i,'longitude'])
     list_of_weather.append(formatted_data)#combine for different locations
     weather=pd.concat(list_of_weather)
 #weather = [getData(x, y) for x, y in zip(geocode['latittude'], geocode['longitude'])]
-weather.to_csv('weather.csv',encoding='utf-8',header=False)#save to file """
+weather.to_csv('weather_lat_long.csv',encoding='utf-8',header=False)#save to file """
