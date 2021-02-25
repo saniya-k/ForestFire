@@ -1,6 +1,6 @@
 # Australian Forest Fire Prediction
 
-*** Data Acquisition, Exploratory data analysis and prediction of Australian Forest Fires***
+***Data Acquisition, Exploratory data analysis and prediction of Australian Forest Fires***
 
 A detailed report is attached here (Group 1_Team WILDFIRE.pdf)
 
@@ -22,7 +22,7 @@ occurrence
 
 ## Data Exploration 
 
-**Relevant Research Questions: **
+**Relevant Research Questions: ** <br/>
 • What are the overall trends of incidents of wildfire in Southern Australia – frequency, time of
 year, type of incident etc?
 • What is the overall trend of basic weather data over the period of analysis in Southern
