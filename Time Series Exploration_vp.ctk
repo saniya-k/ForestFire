@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?><Task schemaVersion="5.4">
+	<Registration>
+		<Name>Time Series Exploration</Name>
+		<Description>The Time Series Exploration task provides graphs and statistics for viewing and analyzing time series.</Description>
+		<GUID>14b28f73-bc44-451f-8c9c-1cf8afbe1c32</GUID>
+		<Procedures>TIMESERIES ARIMA</Procedures>
+		<Version>3.8</Version>
+		<Links>
+			<Link href="http://documentation.sas.com/?softwareId=STUDIOMID&amp;softwareVersion=3.8&amp;softwareContextId=tasks&amp;requestor=inapp">SAS Studio Task Reference Guide</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+            <Link href="http://documentation.sas.com/?softwareId=ANMVA&amp;softwareVersion=3.8_15.1&amp;softwareContextId=proc_timeseries&amp;requestor=inapp">The TIMESERIES Procedure</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+            <Link href="http://documentation.sas.com/?softwareId=ANMVA&amp;softwareVersion=3.8_15.1&amp;softwareContextId=proc_arima&amp;requestor=inapp">The ARIMA Procedure</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+			<Link href="http://support.sas.com/training/studio">SAS Tutorials</Link>
+		</Links>
+	</Registration>
+	<Metadata>
+		<DataSources>
+			<DataSource name="dataset" where="true">
+				<Roles>
+					<Role exclude="dependVariable,independVariable,byVariables" maxVars="1" minVars="0" name="timeID" type="N">Time ID:</Role>
+					<Role exclude="timeID,independVariable,byVariables" maxVars="1" minVars="1" name="dependVariable" type="N">Dependent variable:</Role>
+					<Role exclude="timeID,dependVariable,byVariables" maxVars="0" minVars="0" name="independVariable" type="N">Independent variables:</Role>
+					<Role exclude="dependVariable,timeID,independVariable" maxVars="0" minVars="0" name="byVariables" order="true" type="A">Group analysis by:</Role>
+				</Roles>
+			</DataSource>
+		</DataSources>
+
+		<Options>
+			<Option inputType="string" name="dataTab">DATA</Option>
+ 			<Option inputType="string" name="dataGroup">DATA</Option>
+			<Option inputType="string" name="optionsTab">OPTIONS</Option>
+			<Option inputType="string" name="analysesTab">ANALYSES</Option>
+			<Option inputType="string" name="additionalTab">ADDITIONAL</Option>
+ 			<Option inputType="string" name="rolesGroup">ROLES</Option>
+			<Option inputType="string" name="addRolesGroup">ADDITIONAL ROLES</Option>
+			
+			<Option indent="1" inputType="string" name="timeIDPropertyGroup">Properties</Option>
+			<!-- Note: The timeidproperties component is for internal use only. -->
+			<Option inputType="timeidproperties" name="timeIDProps" source="timeID"/>
+			<Option decimalPlaces="0" defaultValue="1" increment="1" inputType="numstepper" invalidMessage="Enter an integer greater than 0 and less than or equal to 10000." maxValue="10000" minValue="1" missingMessage="Enter an integer greater than 0 and less than or equal to 10000." name="seasonality" promptMessage="Enter an integer greater than 0 and less than or equal to 10000." rangeMessage="Enter an integer greater than 0 and less than or equal to 10000." width="5em">Season length:</Option>
+			
+			<Option inputType="string" name="varSettingsGroup">Transformations</Option>
+			
+			<!-- Note: The timeseriesactions component is for internal use only. -->
+			<Option inputType="timeseriesactions" name="varSettings" source="dependVariable,independVariable" timeid="timeID"/>
+
+			<Option inputType="string" name="autocorrGroup">AUTOCORRELATION ANALYSIS</Option>
+			<Option defaultValue="1" inputType="checkbox" name="autocorrPlots">Perform autocorrelation analysis</Option>
+			<Option indent="1" inputType="string" name="autoCorrPlotsGroup">Plots</Option>
+			<Option defaultValue="1" inputType="checkbox" name="autoPanel">Autocorrelation analysis panel</Option>
+			<Option defaultValue="0" inputType="checkbox" name="acfPlot">Autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="normAcfPlot">Normalized autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="pacfPlot">Partial autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="normPacfPlot">Normalized partial autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="iacfPlot">Inverse autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="normIacfPlot">Normalized inverse autocorrelation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="wnPlot">White noise probability test</Option>
+			<Option defaultValue="0" inputType="checkbox" name="wnLogPlot">White noise probability test (log scale)</Option>
+			<Option defaultValue="autocorrNlagsDefaultChoice" indent="1" inputType="combobox" name="autocorrNlagsCombo">Number of lags:</Option>
+			<Option inputType="string" name="autocorrNlagsDefaultChoice">Use default value</Option>
+			<Option inputType="string" name="autocorrNlagsCustomChoice">Use custom value</Option>
+			<Option decimalPlaces="0" increment="1" indent="2" inputType="numstepper" invalidMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." maxValue="10000" minValue="0" missingMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." name="autocorrNlags" promptMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." rangeMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." required="true" width="5em">Custom number of lags:</Option>
+			<!-- select plots -->
+			<Option defaultValue="defaultAutocorrPlots" indent="1" inputType="combobox" name="selectAutocorrPlotsCombo">Select plots to display:</Option>
+			<Option inputType="string" name="defaultAutocorrPlots">Default plots</Option>
+			<Option inputType="string" name="selectedAutocorrPlots">Selected plots</Option>
+			<Option inputType="string" name="noAutocorrPlots">No plots</Option>
+			
+			<Option inputType="string" name="crosscorrGroup">CROSS-CORRELATION ANALYSIS</Option>
+			<Option defaultValue="0" inputType="checkbox" name="crosscorrPlots">Perform cross-correlation analysis</Option>
+			<Option indent="1" inputType="string" name="crosscorrPlotsNote">Note: Cross-correlation analysis is available when an independent variable is specified.</Option>
+			<Option indent="1" inputType="string" name="crossCorrPlotsGroup">Plots</Option>
+			<Option defaultValue="1" inputType="checkbox" name="crossSeriesPlot">Cross-series</Option>
+			<!-- Cross-cocrrelation function option produces both cross-correlation function and standardized cross-correlation function plot. -->
+			<Option defaultValue="0" inputType="checkbox" name="crossCorrFuncPlot">Cross-correlation function</Option>
+			<Option defaultValue="0" inputType="checkbox" name="normCrossCorrFuncPlot">Normalized cross-correlation function</Option>
+			<Option defaultValue="crosscorrNlagsDefaultChoice" indent="1" inputType="combobox" name="crosscorrNlagsCombo">Number of lags:</Option>
+			<Option inputType="string" name="crosscorrNlagsDefaultChoice">Use default value</Option>
+			<Option inputType="string" name="crosscorrNlagsCustomChoice">Use custom value</Option>
+			<Option decimalPlaces="0" increment="1" indent="2" inputType="numstepper" invalidMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." maxValue="10000" minValue="0" missingMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." name="crosscorrNlags" promptMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." rangeMessage="Enter an integer greater than or equal to 0 and less than or equal to 10000." required="true" width="5em">Custom number of lags:</Option>
+
+			<Option inputType="string" name="decompGroup">DECOMPOSITION ANALYSIS</Option>
+			<Option defaultValue="0" inputType="checkbox" name="decompChkbox">Perform decomposition analysis</Option>
+			<Option indent="1" inputType="string" name="decompNote">Note: Decomposition analysis is available when season length is greater than one. Season length is set on the Data tab in the Additional Roles group.</Option>
+			<Option indent="1" inputType="string" name="decompPlotsGroup">Plots</Option>
+			<Option defaultValue="1" inputType="checkbox" name="decompPanel">Decomposition panel</Option>
+			<Option defaultValue="0" inputType="checkbox" name="componentsPlot">Components</Option>
+			<Option defaultValue="0" inputType="checkbox" name="seasonAdjSeriesPlot">Seasonally adjusted series</Option>
+			<Option defaultValue="0" inputType="checkbox" name="pctChangeSeasonAdjSeriesPlot">Seasonally adjusted series (percent change)</Option>
+			<Option inputType="string" name="componentsGroup">Decomposition components</Option>
+			<Option defaultValue="trendCycleComp,seasonalComp,irregularComp" height="120px" indent="1" inputType="select" multiple="true" name="componentSelect">Select components:</Option>
+				<Option inputType="string" name="trendComp">Trend component</Option>
+				<Option inputType="string" name="cycleComp">Cycle component</Option>
+				<Option inputType="string" name="trendCycleComp">Trend-cycle component</Option>
+				<Option inputType="string" name="seasonalComp">Seasonal component</Option>
+				<Option inputType="string" name="irregularComp">Irregular component</Option>
+				<Option inputType="string" name="seasonIregularComp">Seasonal-irregular component</Option>
+				<Option inputType="string" name="trendCycleSeasonComp">Trend-cycle-seasonal component</Option>
+			<Option defaultValue="multoradd" indent="1" inputType="combobox" name="decompMethod">Decomposition method:</Option>
+				<Option inputType="string" name="multoradd" returnValue="multoradd">Automatic</Option>
+				<Option inputType="string" name="additive" returnValue="add">Additive</Option>
+				<Option inputType="string" name="multiplicative" returnValue="mult">Multiplicative</Option>
+				<Option inputType="string" name="logadditive" returnValue="logadd">Log-additive</Option>
+				<Option inputType="string" name="pseudoadditive" returnValue="pseudoadd">Pseudo-additive</Option>
+			<!-- select plots -->
+			<Option defaultValue="defaultDecompPlots" indent="1" inputType="combobox" name="selectDecompPlotsCombo">Select plots to display:</Option>
+			<Option inputType="string" name="defaultDecompPlots">Default plots</Option>
+			<Option inputType="string" name="selectedDecompPlots">Selected plots</Option>
+			<Option inputType="string" name="noDecompPlots">No plots</Option>
+
+			<Option inputType="string" name="spectralGroup">SPECTRAL DENSITY ANALYSIS</Option>
+			<Option defaultValue="0" inputType="checkbox" name="spectralPlot">Spectral density estimate plot</Option>
+			<Option defaultValue="minperiodDefaultChoice" indent="1" inputType="combobox" name="minperiodCombo">Minimum period:</Option>
+			<Option inputType="string" name="minperiodDefaultChoice">Use default value</Option>
+			<Option inputType="string" name="minperiodCustomChoice">Use custom value</Option>
+			<Option decimalPlaces="0" indent="2" inputType="numstepper" invalidMessage="Enter an integer greater than or equal to 0 and less than or equal to 32767." maxValue="32767" minValue="0" missingMessage="Enter an integer greater than or equal to 0 and less than or equal to 32767." name="minperiod" promptMessage="Enter an integer greater than or equal to 0 and less than or equal to 32767." rangeMessage="Enter an integer greater than or equal to 0 and less than or equal to 32767." required="true" width="5em">Custom minimum period:</Option>
+			<Option indent="1" inputType="string" name="spectraDetailsGroup">Details</Option>
+			<Option defaultValue="0" inputType="checkbox" name="adjustMean">Adjust the series by its mean prior to the analysis</Option>
+			<Option defaultValue="freqDomainChoice" inputType="combobox" name="analysisDomain">Analysis domain:</Option>
+			<Option inputType="string" name="freqDomainChoice" returnValue="frequency">Frequency</Option>
+			<Option inputType="string" name="timeDomainChoice" returnValue="time">Time</Option>
+			<Option defaultValue="spectraAlphaDefaultChoice" inputType="combobox" name="spectraAlphaCombo">Significance level:(need a more informative label?)</Option>
+			<Option inputType="string" name="spectraAlphaDefaultChoice">Use default value (0.5)</Option>
+			<Option inputType="string" name="spectraAlphaCustomChoice">Use custom value</Option>
+			<Option defaultValue="0.5" indent="1" inputType="numbertext" invalidMessage="Enter a number greater than 0 and less than 1." maxValue="0.9999999999999999" minValue="0.00000000000000000000000001" missingMessage="Enter a number greater than 0 and less than 1." name="spectraAlpha" promptMessage="Enter a number greater than 0 and less than 1." rangeMessage="Enter a number greater than 0 and less than 1." width="6em">Custom significance level:</Option>
+			<Option inputType="string" name="kernelSpecGroup">Kernel Specifications</Option>
+			<Option defaultValue="noKernel" inputType="combobox" name="kernelFunc">Kernel function:</Option>
+				<Option inputType="string" name="noKernel" returnValue="none">Not specified</Option>
+				<Option inputType="string" name="parzenKernel" returnValue="parzen">Parzen kernel</Option>
+				<Option inputType="string" name="bartlettKernel" returnValue="bartlett">Bartlett kernel</Option>
+				<Option inputType="string" name="tukeyKernel" returnValue="tukey">Tukey-Hanning kernel</Option>
+				<Option inputType="string" name="truncatedKernel" returnValue="trunc">Truncated kernel</Option>
+				<Option inputType="string" name="quadraticKernel" returnValue="quadr">Quadratic spectral kernel</Option>
+			<Option defaultValue="scaleKernelDefaultChoice" inputType="combobox" name="scaleKernelCombo">Scale coefficient:</Option>
+			<Option inputType="string" name="scaleKernelDefaultChoice">Use default value</Option>
+			<Option inputType="string" name="scaleKernelCustomChoice">Use custom value</Option>
+			<Option indent="1" inputType="numbertext" invalidMessage="Enter a number greater than 0 and less than or equal to 32000." maxValue="32000" minValue="0.00000000000000000000000001" missingMessage="Enter a number greater than 0 and less than or equal to 32000." name="scaleKernel" promptMessage="Enter a number greater than 0 and less than or equal to 32000." rangeMessage="Enter a number greater than 0 and less than or equal to 32000." required="true" width="6em">Custom scale coefficient:</Option>
+			<Option defaultValue="exponentDefaultChoice" inputType="combobox" name="exponentCombo">Exponent:</Option>
+			<Option inputType="string" name="exponentDefaultChoice">Use default value</Option>
+			<Option inputType="string" name="exponentCustomChoice">Use custom value</Option>
+			<Option indent="1" inputType="numbertext" invalidMessage="Enter a number greater than or equal to 0 and less than 1." maxValue="0.9999999999999999" minValue="0" missingMessage="Enter a number greater than or equal to 0 and less than 1." name="exponent" promptMessage="Enter a number greater than or equal to 0 and less than 1." rangeMessage="Enter a number greater than or equal to 0 and less than 1." required="true" width="6em">Custom exponent:</Option>
+
+			<!-- Unit root test produces table -->
+			<Option inputType="string" name="unitRootTestsGroup">UNIT ROOT TEST ANALYSIS</Option>
+			<Option defaultValue="0" inputType="checkbox" name="adfTest">Perform augmented Dickey-Fuller test</Option>
+			<Option decimalPlaces="0" defaultValue="2" increment="1" inputType="numstepper" invalidMessage="Enter an integer greater than or equal to 0 and less than or equal to 1000." maxValue="1000" minValue="0" missingMessage="Enter an integer greater than or equal to 0 and less than or equal to 1000." name="arOrder" promptMessage="Enter an integer greater than or equal to 0 and less than or equal to 1000." rangeMessage="Enter an integer greater than or equal to 0 and less than or equal to 1000." width="5em">Augmenting order:</Option>
+
+			<Option inputType="string" name="plotsGroup">SERIES PLOTS</Option>
+			<Option defaultValue="1" inputType="checkbox" name="seriesPlot">Time Series</Option>
+			<Option defaultValue="0" inputType="checkbox" name="seriesHistogram">Series histogram</Option>
+			<Option defaultValue="0" inputType="checkbox" name="seasonalCyclesPlot">Seasonal cycles</Option>
+			
+			<Option inputType="string" name="statisticsGroup">STATISTICS</Option>
+			<Option height="120px" inputType="select" multiple="true" name="statsSelect">Select statistics:</Option>
+			<Option defaultValue="0" inputType="checkbox" name="descriptiveStats">Descriptive statistics</Option>
+			<Option defaultValue="0" inputType="checkbox" name="seasonalStats">Seasonal statistics</Option>
+			<Option defaultValue="0" inputType="checkbox" name="seasonalDecomp">Seasonal decomposition</Option>
+			<Option defaultValue="0" inputType="checkbox" name="trendStats">Trend statistics</Option>
+			<Option indent="1" inputType="string" name="seasonalStatsNote">Note: Seasonal statistics and Seasonal decomposition are available when season length is greater than one. Season length is set on the Data tab in the Additional Roles group.</Option>
+			<Option indent="1" inputType="string" name="trendStatsNote">Note: Trend statistics are available when Time ID variable is specified and accumulation method is not None for dependent variable. Accumulation method is set on the Data tab in the Transformations group.</Option>
+
+            <!-- Code comments -->
+            <Option inputType="string" name="commentUnitRoot">Unit root test analysis</Option>  
+		</Options>
+	</Metadata>
+
+	<UI>
+		<Container option="dataTab">
+			<Group open="true" option="dataGroup">
+				<DataItem data="dataset"/>
+			</Group>
+			<Group open="true" option="rolesGroup">
+					<RoleItem role="dependVariable"/>
+					<RoleItem role="independVariable"/>
+					<Group open="true" option="varSettingsGroup">
+						<OptionItem option="varSettings"/>
+					</Group>
+			</Group>
+			<Group open="false" option="addRolesGroup">
+				<RoleItem role="timeID"/>
+				<Group open="true" option="timeIDPropertyGroup">
+					<OptionItem option="timeIDProps"/>
+				</Group>
+				<OptionItem option="seasonality"/>
+				<RoleItem role="byVariables"/>
+			</Group>
+		</Container>
+
+ 		<Container option="analysesTab">
+ 			<Group open="true" option="plotsGroup">
+				<OptionItem option="seriesPlot"/>
+				<OptionItem option="seriesHistogram"/>
+				<OptionItem option="seasonalCyclesPlot"/>
+			</Group>
+			<Group open="false" option="statisticsGroup">
+				<OptionItem option="descriptiveStats"/>
+				<OptionItem option="seasonalStats"/>
+				<OptionItem option="seasonalDecomp"/>
+				<OptionItem option="seasonalStatsNote"/>
+				<OptionItem option="trendStats"/>
+				<OptionItem option="trendStatsNote"/>
+			</Group>
+			<Group open="true" option="autocorrGroup">
+				<OptionItem option="autocorrPlots"/>
+				<OptionChoice option="selectAutocorrPlotsCombo">
+					<OptionItem option="defaultAutocorrPlots"/>
+					<OptionItem option="selectedAutocorrPlots"/>
+					<OptionItem option="noAutocorrPlots"/>
+				</OptionChoice>
+				<Group open="true" option="autoCorrPlotsGroup">
+					<OptionItem option="autoPanel"/>
+					<OptionItem option="acfPlot"/>
+					<OptionItem option="normAcfPlot"/>
+					<OptionItem option="pacfPlot"/>
+					<OptionItem option="normPacfPlot"/>
+					<OptionItem option="iacfPlot"/>
+					<OptionItem option="normIacfPlot"/>
+					<OptionItem option="wnPlot"/>
+					<OptionItem option="wnLogPlot"/>
+				</Group>
+				<OptionChoice option="autocorrNlagsCombo">
+					<OptionItem option="autocorrNlagsDefaultChoice"/>
+					<OptionItem option="autocorrNlagsCustomChoice"/>
+				</OptionChoice>
+				<OptionItem option="autocorrNlags"/>
+			</Group>
+			<Group open="false" option="crosscorrGroup">
+				<OptionItem option="crosscorrPlots"/>
+				<OptionItem option="crosscorrPlotsNote"/>
+				<Group open="true" option="crossCorrPlotsGroup">
+					<OptionItem option="crossSeriesPlot"/>
+					<OptionItem option="crossCorrFuncPlot"/>
+					<OptionItem option="normCrossCorrFuncPlot"/>
+				</Group>
+				<OptionChoice option="crosscorrNlagsCombo">
+					<OptionItem option="crosscorrNlagsDefaultChoice"/>
+					<OptionItem option="crosscorrNlagsCustomChoice"/>
+				</OptionChoice>
+				<OptionItem option="crosscorrNlags"/>
+			</Group>
+			<Group open="false" option="decompGroup">
+				<OptionItem option="decompChkbox"/>
+				<OptionItem option="decompNote"/>
+				<OptionChoice option="selectDecompPlotsCombo">
+					<OptionItem option="defaultDecompPlots"/>
+					<OptionItem option="selectedDecompPlots"/>
+					<OptionItem option="noDecompPlots"/>
+				</OptionChoice>
+				<Group open="true" option="decompPlotsGroup">
+					<OptionItem option="decompPanel"/>
+					<OptionItem option="componentsPlot"/>
+					<OptionChoice option="componentSelect">
+						<OptionItem option="trendComp"/>
+						<OptionItem option="cycleComp"/>
+						<OptionItem option="trendCycleComp"/>
+						<OptionItem option="seasonalComp"/>
+						<OptionItem option="irregularComp"/>
+						<OptionItem option="seasonIregularComp"/>
+						<OptionItem option="trendCycleSeasonComp"/>
+					</OptionChoice>
+					<OptionItem option="seasonAdjSeriesPlot"/>
+					<OptionItem option="pctChangeSeasonAdjSeriesPlot"/>
+				</Group>
+				<OptionChoice option="decompMethod">
+					<OptionItem option="multoradd"/>
+					<OptionItem option="additive"/>
+					<OptionItem option="multiplicative"/>
+					<OptionItem option="logadditive"/>
+					<OptionItem option="pseudoadditive"/>
+				</OptionChoice>
+			</Group>
+ 			<Group open="false" option="spectralGroup">
+				<OptionItem option="spectralPlot"/>
+				<OptionChoice option="minperiodCombo">
+					<OptionItem option="minperiodDefaultChoice"/>
+					<OptionItem option="minperiodCustomChoice"/>
+				</OptionChoice>
+				<OptionItem option="minperiod"/>
+				<Group open="false" option="spectraDetailsGroup">
+				<OptionItem option="adjustMean"/>
+				<OptionChoice option="analysisDomain">
+					<OptionItem option="freqDomainChoice"/>
+					<OptionItem option="timeDomainChoice"/>
+				</OptionChoice>
+				<Group open="false" option="kernelSpecGroup">
+					<OptionChoice option="kernelFunc">
+						<OptionItem option="noKernel"/>
+						<OptionItem option="parzenKernel"/>
+						<OptionItem option="bartlettKernel"/>
+						<OptionItem option="tukeyKernel"/>
+						<OptionItem option="truncatedKernel"/>
+						<OptionItem option="quadraticKernel"/>
+					</OptionChoice>
+					<OptionChoice option="scaleKernelCombo">
+						<OptionItem option="scaleKernelDefaultChoice"/>
+						<OptionItem option="scaleKernelCustomChoice"/>
+					</OptionChoice>
+					<OptionItem option="scaleKernel"/>
+					<OptionChoice option="exponentCombo">
+						<OptionItem option="exponentDefaultChoice"/>
+						<OptionItem option="exponentCustomChoice"/>
+					</OptionChoice>
+					<OptionItem option="exponent"/>
+				</Group>
+				</Group>
+			</Group>
+ 			<Group open="false" option="unitRootTestsGroup">
+				<OptionItem option="adfTest"/>
+				<OptionItem option="arOrder"/>
+			</Group>
+		</Container>
+	</UI>
+	
+	<Dependencies>
+		<Dependency condition="$dependVariable.size()&gt;=1 || ($independVariable &amp;&amp; $independVariable.size()&gt;=1)">
+			<Target action="show" conditionResult="true" option="varSettingsGroup"/>
+			<Target action="hide" conditionResult="false" option="varSettingsGroup"/>
+		</Dependency>
+		<Dependency condition="$autocorrPlots=='1'">
+			<Target action="show" conditionResult="true" option="selectAutocorrPlotsCombo"/>
+			<Target action="hide" conditionResult="false" option="selectAutocorrPlotsCombo"/>
+		</Dependency>
+		<Dependency condition="$selectAutocorrPlotsCombo=='selectedAutocorrPlots'">
+			<Target action="show" conditionResult="true" option="autoCorrPlotsGroup"/>
+			<Target action="hide" conditionResult="false" option="autoCorrPlotsGroup"/>
+		</Dependency>
+		<Dependency condition="$autocorrPlots=='1' &amp;&amp; !($selectAutocorrPlotsCombo=='noAutocorrPlots')">
+			<Target action="show" conditionResult="true" option="autocorrNlagsCombo"/>
+			<Target action="hide" conditionResult="false" option="autocorrNlagsCombo"/>
+		</Dependency>
+		<Dependency condition="$autocorrNlagsCombo=='autocorrNlagsCustomChoice'">
+			<Target action="show" conditionResult="true" option="autocorrNlags"/>
+			<Target action="hide" conditionResult="false" option="autocorrNlags"/>
+		</Dependency>
+		<Dependency condition="$independVariable.size()&gt;=1">
+			<Target action="enable" conditionResult="true" option="crosscorrPlots"/>
+			<Target action="disable" conditionResult="false" option="crosscorrPlots"/>
+			<Target action="hide" conditionResult="true" option="crosscorrPlotsNote"/>
+			<Target action="show" conditionResult="false" option="crosscorrPlotsNote"/>
+		</Dependency>
+		<Dependency condition="$crosscorrPlots=='1'">
+			<Target action="show" conditionResult="true" option="crossCorrPlotsGroup"/>
+			<Target action="hide" conditionResult="false" option="crossCorrPlotsGroup"/>
+		</Dependency>
+		<Dependency condition="$independVariable.size()&gt;=1 &amp;&amp; ($crossCorrFuncPlot=='1' || $normCrossCorrFuncPlot=='1')">
+			<Target action="show" conditionResult="true" option="crosscorrNlagsCombo"/>
+			<Target action="hide" conditionResult="false" option="crosscorrNlagsCombo"/>
+		</Dependency>
+		<Dependency condition="$crosscorrNlagsCombo=='crosscorrNlagsCustomChoice'">
+			<Target action="show" conditionResult="true" option="crosscorrNlags"/>
+			<Target action="hide" conditionResult="false" option="crosscorrNlags"/>
+		</Dependency>
+		<Dependency condition="$timeID.size()&gt;=1">
+			<Target action="show" conditionResult="true" option="timeIDPropertyGroup"/>
+			<Target action="hide" conditionResult="false" option="timeIDPropertyGroup"/>
+		</Dependency>
+		<Dependency condition="$timeID.size()&gt;=1">
+			<Target action="hide" conditionResult="true" option="seasonality"/>
+			<Target action="show" conditionResult="false" option="seasonality"/>
+		</Dependency>
+		<Dependency condition="$MathTool.toInteger($timeIDProps.cycleLen)&gt;1 || $MathTool.toInteger($seasonality)&gt;1">
+			<Target action="set" conditionResult="true" option="varSettings" property="hideSeasonalDiff" value="false"/>
+			<Target action="set" conditionResult="false" option="varSettings" property="hideSeasonalDiff" value="true"/>
+		</Dependency>
+		<Dependency condition="$MathTool.toInteger($seasonality)&gt;1 || ($timeIDProps &amp;&amp; $MathTool.toInteger($timeIDProps.cycleLen)&gt;1)">
+			<Target action="enable" conditionResult="true" option="decompChkbox"/>
+			<Target action="disable" conditionResult="false" option="decompChkbox"/>
+			<Target action="hide" conditionResult="true" option="decompNote"/>
+			<Target action="show" conditionResult="false" option="decompNote"/>
+			<Target action="enable" conditionResult="true" option="seasonalStats"/>
+			<Target action="disable" conditionResult="false" option="seasonalStats"/>
+			<Target action="enable" conditionResult="true" option="seasonalDecomp"/>
+			<Target action="disable" conditionResult="false" option="seasonalDecomp"/>
+			<Target action="hide" conditionResult="true" option="seasonalStatsNote"/>
+			<Target action="show" conditionResult="false" option="seasonalStatsNote"/>
+		</Dependency>
+		<Dependency condition="$decompChkbox=='1'">
+			<Target action="show" conditionResult="true" option="selectDecompPlotsCombo"/>
+			<Target action="hide" conditionResult="false" option="selectDecompPlotsCombo"/>
+		</Dependency>
+		<Dependency condition="$selectDecompPlotsCombo=='selectedDecompPlots'">
+			<Target action="show" conditionResult="true" option="decompPlotsGroup"/>
+			<Target action="hide" conditionResult="false" option="decompPlotsGroup"/>
+		</Dependency>
+		<Dependency condition="$componentsPlot=='1'">
+			<Target action="show" conditionResult="true" option="componentSelect"/>
+			<Target action="hide" conditionResult="false" option="componentSelect"/>
+		</Dependency>
+		<Dependency condition="$decompPanel=='1' || $componentSelect.size()&gt;=1 || $seasonAdjSeriesPlot=='1' || $pctChangeSeasonAdjSeriesPlot=='1' || $selectDecompPlotsCombo=='defaultDecompPlots'">
+			<Target action="show" conditionResult="true" option="decompMethod"/>
+			<Target action="hide" conditionResult="false" option="decompMethod"/>
+		</Dependency>
+		<Dependency condition="$spectralPlot=='1'">
+			<Target action="show" conditionResult="true" option="minperiodCombo"/>
+			<Target action="hide" conditionResult="false" option="minperiodCombo"/>
+			<Target action="show" conditionResult="true" option="spectraDetailsGroup"/>
+			<Target action="hide" conditionResult="false" option="spectraDetailsGroup"/>
+		</Dependency>
+		<Dependency condition="$kernelFunc=='none'">
+			<Target action="hide" conditionResult="true" option="scaleKernelCombo"/>
+			<Target action="show" conditionResult="false" option="scaleKernelCombo"/>
+			<Target action="hide" conditionResult="true" option="exponentCombo"/>
+			<Target action="show" conditionResult="false" option="exponentCombo"/>
+		</Dependency>
+		<Dependency condition="$scaleKernelCombo=='scaleKernelCustomChoice'">
+			<Target action="show" conditionResult="true" option="scaleKernel"/>
+			<Target action="hide" conditionResult="false" option="scaleKernel"/>
+		</Dependency>
+		<Dependency condition="$exponentCombo=='exponentCustomChoice'">
+			<Target action="show" conditionResult="true" option="exponent"/>
+			<Target action="hide" conditionResult="false" option="exponent"/>
+		</Dependency>
+		<Dependency condition="$adfTest=='1'">
+			<Target action="show" conditionResult="true" option="arOrder"/>
+			<Target action="hide" conditionResult="false" option="arOrder"/>
+		</Dependency>
+		<Dependency condition="$minperiodCombo=='minperiodCustomChoice'">
+			<Target action="show" conditionResult="true" option="minperiod"/>
+			<Target action="hide" conditionResult="false" option="minperiod"/>
+		</Dependency>
+		<Dependency condition="$timeID.size()&gt;=1 &amp;&amp; $dependVariable.size()&gt;0 &amp;&amp; !($varSettings.get('accumulate').get(&quot;$dependVariable[0]&quot;)=='accumulateNone')">
+			<Target action="enable" conditionResult="true" option="trendStats"/>
+			<Target action="disable" conditionResult="false" option="trendStats"/>
+			<Target action="hide" conditionResult="true" option="trendStatsNote"/>
+			<Target action="show" conditionResult="false" option="trendStatsNote"/>
+		</Dependency>
+	</Dependencies>
+
+	<Requirements>
+		<Requirement condition="(!($autocorrPlots=='1' &amp;&amp; $selectAutocorrPlotsCombo=='selectedAutocorrPlots' &amp;&amp; !($autoPanel=='1' || $acfPlot=='1' || $normAcfPlot=='1' || $pacfPlot=='1' || $normPacfPlot=='1' || $iacfPlot=='1' || $normIacfPlot=='1' || $wnPlot=='1' || $wnLogPlot=='1')))">
+			<Message nlsKey="autocorrPlotSelectMsgKey">Select at least one autocorrelation analysis plot.</Message>
+		</Requirement>
+		<Requirement condition="(!($crosscorrPlots=='1' &amp;&amp; !($crossSeriesPlot=='1' || $crossCorrFuncPlot=='1' || $normCrossCorrFuncPlot=='1')))">
+			<Message nlsKey="crosscorrPlotSelectMsgKey">Select at least one cross-correlation analysis plot.</Message>
+		</Requirement>
+		<Requirement condition="(!($decompChkbox=='1' &amp;&amp; $selectDecompPlotsCombo=='selectedDecompPlots' &amp;&amp; !($componentSelect.size()&gt;=1 || $decompPanel=='1' || $seasonAdjSeriesPlot=='1' || $pctChangeSeasonAdjSeriesPlot=='1')))">
+			<Message nlsKey="decompPlotSelectMsgKey">Select at least one decomposition analysis plot.</Message>
+		</Requirement>
+	</Requirements>
+	
+	<CodeTemplate>
+		<![CDATA[
+## separate lists of dependent and independent variable settings
+#set($dependList = [])
+#set($independList = [])
+#foreach($item in $varSettings.get("settings"))
+	#if($item.get("role") == "dependVariable")
+		#set($success=$dependList.add($item))
+	#end
+	#if($item.role == "independVariable")
+		#set($success=$independList.add($item))
+	#end
+#end
+		
+#if($seriesPlot=="1" || $seriesHistogram=="1" || $seasonalCyclesPlot=="1" || $spectralPlot=="1" || $autoPanel=="1" || $acfPlot=="1" || $normAcfPlot=="1" || $pacfPlot=="1" || $normPacfPlot=="1" 
+	|| $iacfPlot=="1" || $normIacfPlot=="1" || $wnPlot=="1" || $wnLogPlot=="1" || $decompPanel=="1" || $componentsPlot=="1" || $seasonAdjSeriesPlot=="1" || $pctChangeSeasonAdjSeriesPlot=="1") 
+	#set($plotsSelected=1)
+#else #set($plotsSelected=0)
+#end
+#if($autocorrPlots=="1" && $selectAutocorrPlotsCombo=="defaultAutocorrPlots") #set($defaultAutocorrPlot=1) #else #set($defaultAutocorrPlot=0) #end
+#if($decompChkbox=="1" && $selectDecompPlotsCombo=="defaultDecompPlots") #set($defaultDecompPlot=1) #else #set($defaultDecompPlot=0) #end
+#if($plotsSelected=="1" || $defaultAutocorrPlot=="1" || $defaultDecompPlot=="1") 
+	#set($plotsNeeded=1) 
+#else #set($plotsNeeded=0)
+#end
+#if($crossSeriesPlot=="1" || $crossCorrFuncPlot=="1" || $normCrossCorrFuncPlot=="1") #set($crossPlotsSelected=1) #else #set($crossPlotsSelected=0) #end
+#if($defaultDecompPlot=="1" || $decompPanel=='1' || $componentSelect.size()>=1 || $seasonAdjSeriesPlot=="1" || $pctChangeSeasonAdjSeriesPlot=="1") #set($decompStmtNeeded=1) #else #set($decompStmtNeeded=0) #end
+#if($descriptiveStats=="1" || $seasonalStats=="1" || $seasonalDecomp=="1" || $trendStats=="1") #set($statsSelected=1) #else #set($statsSelected=0) #end
+
+ods noproctitle;
+ods graphics / imagemap=on;
+
+### Preprocess input data
+#set($preProcessData=0)
+#if($byVariables.size()>0 || $timeID.size()>0)
+#set($preProcessData=1)
+proc sort data=$dataset out=Work.preProcessedData;
+   #if ($dataset.getWhereClause() != '')
+   where $dataset.getWhereClause();
+   #end
+   by #foreach($item in $byVariables) $item #end #foreach($item in $timeID) $item #end;
+run;
+#elseif ($dataset.getWhereClause() != '')
+#set($preProcessData=1)
+data Work.preProcessedData;
+    set $dataset(where=( $dataset.getWhereClause() ));
+run;
+#end
+
+
+proc timeseries data=#if($preProcessData > 0) Work.preProcessedData #else $dataset #end
+#if($timeID.size()>0) #if($timeIDProps.cycleLen!="" && $timeIDProps.cycleLen!="1") seasonality=$timeIDProps.cycleLen #end #else #if($seasonality) #if($seasonality!="" && $seasonality!="1") seasonality=$seasonality #end #end #end
+#if($plotsNeeded=="1") plots=(
+	#if($seriesPlot=="1") series #end #if($seriesHistogram=="1") histogram #end #if($seasonalCyclesPlot=="1") cycles #end 
+	#if($spectralPlot=="1") spectrum #if($minperiodCombo=="minperiodCustomChoice") (minperiod=$minperiod) #end #end
+	#if($autoPanel=="1" || $defaultAutocorrPlot=="1") corr #end
+	#if($acfPlot=="1" || $normAcfPlot=="1") acf #end #if($pacfPlot=="1" || $normPacfPlot=="1") pacf #end #if($iacfPlot=="1" || $normIacfPlot=="1") iacf #end #if($wnPlot=="1" || $wnLogPlot=="1") wn #end
+	#if($decompPanel=="1" || $defaultDecompPlot=="1") decomp #end 
+	#if($seasonAdjSeriesPlot=="1") sa #end #if($pctChangeSeasonAdjSeriesPlot=="1") pcsa #end	
+	#if($componentsPlot=="1") 
+		#if($componentSelect.contains("trendComp")) tc #end #if($componentSelect.contains("cycleComp")) cc #end #if($componentSelect.contains("trendCycleComp")) tcc #end
+		#if($componentSelect.contains("seasonalComp")) sc #end #if($componentSelect.contains("irregularComp")) ic #end #if($componentSelect.contains("seasonIregularComp")) sic #end
+		#if($componentSelect.contains("trendCycleSeasonComp")) tcs #end
+	#end)
+#end
+#if($crossPlotsSelected=="1") crossplots=(#if($crossSeriesPlot=="1") series #end #if($crossCorrFuncPlot=="1" || $normCrossCorrFuncPlot=="1") ccf #end) #end
+#if($statsSelected=="1") print=(#if($descriptiveStats=="1") descstats #end #if($seasonalStats=="1") seasons #end #if($seasonalDecomp=="1") decomp #end #if($trendStats=="1") trends #end) #end;
+#if($timeID.size()>0)
+	id #foreach($item in $timeID) $item #end interval=$timeIDProps.intervalName;
+#end
+#foreach($item in $dependList) 
+	var $CTMUtil.toSASName($item.variable) / 
+	#if($item.accumulate) accumulate=#if($item.accumulate=="accumulateAvg") average #elseif($item.accumulate=="accumulateTotal") total #else none #end #end
+	#if($item.transformation) transform=#if($item.transformation=="logTrans") log #elseif($item.transformation=="sqrtTrans") sqrt 
+		#elseif($item.transformation=="logisticTrans") logistic #elseif($item.transformation=="boxcoxTrans") boxcox(0) #else none #end #end
+	#if($item.simpleDiff) dif=$item.simpleDiff #end
+	#if($item.seasonalDiff) sdif=$item.seasonalDiff #end;
+#end
+#if($autocorrNlagsCombo=="autocorrNlagsCustomChoice") corr / nlag=$autocorrNlags; #end
+#foreach($item in $independList) 
+	crossvar $CTMUtil.toSASName($item.variable) / 
+	#if($item.accumulate) accumulate=#if($item.accumulate=="accumulateAvg") average #elseif($item.accumulate=="accumulateTotal") total #else none #end #end
+	#if($item.transformation) transform=#if($item.transformation=="logTrans") log #elseif($item.transformation=="sqrtTrans") sqrt 
+		#elseif($item.transformation=="logisticTrans") logistic #elseif($item.transformation=="boxcoxTrans") boxcox(0) #else none #end #end
+	#if($item.simpleDiff) dif=$item.simpleDiff #end
+	#if($item.seasonalDiff) sdif=$item.seasonalDiff #end;
+#end
+#if($crosscorrNlagsCombo=="crosscorrNlagsCustomChoice") crosscorr / nlag=$crosscorrNlags; #end
+#if($decompStmtNeeded=="1") 
+	decomp #if($seasonAdjSeriesPlot=="1") adjusted #end #if($pctChangeSeasonAdjSeriesPlot=="1") pcsa #end 
+		#if($componentSelect.size()>=1) 
+			#if($componentSelect.contains("trendComp")) tc #end 
+			#if($componentSelect.contains("cycleComp")) cycle #end 
+			#if($componentSelect.contains("trendCycleComp")) trendcycle #end
+			#if($componentSelect.contains("seasonalComp")) seasonal #end 
+			#if($componentSelect.contains("irregularComp")) irregular #end 
+			#if($componentSelect.contains("seasonIregularComp")) seasonirregular #end
+			#if($componentSelect.contains("trendCycleSeasonComp")) trendcycleseason #end
+		#end
+	/ #if($decompMethod) mode=$decompMethod #end;
+#end
+## ods exclude to separate autocorrelation and normalized autocorrelation plot
+#if($acfPlot=="1")
+	#if(!($normAcfPlot=="1"))
+ods exclude ACFNORMPlot;
+	#end
+#else
+	#if($normAcfPlot=="1")
+ods exclude ACFPlot;
+	#end
+#end
+## ods exclude to separate partial autocorrelation and normalized partial autocorrelation plot
+#if($pacfPlot=="1")
+	#if(!($normPacfPlot=="1"))
+ods exclude PACFNORMPlot;
+	#end
+#else
+	#if($normPacfPlot=="1")
+ods exclude PACFPlot;
+	#end
+#end
+## ods exclude to separate inverse autocorrelation and normalized inverse autocorrelation plot
+#if($iacfPlot=="1")
+	#if(!($normIacfPlot=="1"))
+ods exclude IACFNORMPlot;
+	#end
+#else
+	#if($normIacfPlot=="1")
+ods exclude IACFPlot;
+	#end
+#end
+## ods exclude to separate white noise and white noise (log scale) plot
+#if($wnPlot=="1")
+	#if(!($wnLogPlot=="1"))
+ods exclude WhiteNoiseLogProbabilityPlot;
+	#end
+#else
+	#if($wnLogPlot=="1")
+ods exclude WhiteNoiseProbabilityPlot;
+	#end
+#end
+## ods exclude to separate cross-correlation and normalized cross-correlation plot
+#if($crossCorrFuncPlot=="1")
+	#if(!($normCrossCorrFuncPlot=="1"))
+ods exclude CCFNORMPlot;
+	#end
+#else
+	#if($normCrossCorrFuncPlot=="1")
+ods exclude CCFPlot;
+	#end
+#end
+#if($spectralPlot=="1") spectra / domain=$analysisDomain #if($adjustMean=="1") adjustmean=YES #end 
+	#if(!($kernelFunc=="none")) $kernelFunc #if($scaleKernelCombo=="scaleKernelCustomChoice") c=$scaleKernel #end #if($exponentCombo=="exponentCustomChoice") exp=$exponent #end #end; 
+#end
+#if($byVariables.size() > 0)
+	by #foreach($item in $byVariables) $item #end;
+#end
+run;
+
+#if($adfTest=="1")
+/* $commentUnitRoot */
+proc arima data=#if($preProcessData > 0) Work.preProcessedData #else $dataset #end
+plots=none;
+	ods select StationarityTests;
+	identify var=#foreach($item in $dependVariable) $item #end stationarity=(#if($arOrder!="") adf=$arOrder #else adf #end);
+#if($byVariables.size() > 0)
+	by #foreach($item in $byVariables) $item #end;
+#end
+run;
+quit;
+#end
+
+#if( $preProcessData > 0 )
+proc delete data=Work.preProcessedData; run;
+#end
+]]>
+	</CodeTemplate>
+
+
+
+
+
+<TemplateValues version="3.8">
+<![CDATA[
+{"additionalTab":"ADDITIONAL","minperiodCombo":"minperiodDefaultChoice","parzenKernel":"Parzen kernel","noKernel":"Not specified","sasOS":"Linux LIN X64 2.6.32-754.6.3.el6.x86_64","timeIDPropertyGroup":"Properties","selectedAutocorrPlots":"Selected plots","spectraAlpha":"0.5","scaleKernelCustomChoice":"Use custom value","crossSeriesPlot":"1","decompChkbox":"0","wnPlot":"0","spectralPlot":"0","autocorrNlagsCustomChoice":"Use custom value","crosscorrNlagsCustomChoice":"Use custom value","seasonalDecomp":"1","irregularComp":"Irregular component","byVariables":"","tukeyKernel":"Tukey-Hanning kernel","pctChangeSeasonAdjSeriesPlot":"0","additive":"Additive","minperiodDefaultChoice":"Use default value","trendComp":"Trend component","adjustMean":"0","crosscorrNlagsCombo":"crosscorrNlagsDefaultChoice","trendCycleSeasonComp":"Trend-cycle-seasonal component","timeID":"json:[{\"value\":\"Date\",\"type\":\"Numeric\",\"length\":8,\"format\":\"MONYY7.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","pseudoadditive":"Pseudo-additive","wnLogPlot":"0","normCrossCorrFuncPlot":"0","spectraAlphaDefaultChoice":"Use default value (0.5)","rolesGroup":"ROLES","normPacfPlot":"0","crosscorrPlotsNote":"Note: Cross-correlation analysis is available when an independent variable is specified.","spectralGroup":"SPECTRAL DENSITY ANALYSIS","varSettingsGroup":"Transformations","freqDomainChoice":"Frequency","autoCorrPlotsGroup":"Plots","unitRootTestsGroup":"UNIT ROOT TEST ANALYSIS","independVariable":"","pacfPlot":"0","quadraticKernel":"Quadratic spectral kernel","decompMethod":"multoradd","seriesHistogram":"1","acfPlot":"0","spectraAlphaCombo":"spectraAlphaDefaultChoice","minperiodCustomChoice":"Use custom value","adfTest":"0","sasVersion":"9.46","noAutocorrPlots":"No plots","analysisDomain":"frequency","kernelSpecGroup":"Kernel Specifications","selectAutocorrPlotsCombo":"defaultAutocorrPlots","defaultDecompPlots":"Default plots","autocorrNlagsCombo":"autocorrNlagsDefaultChoice","dataset":{"librarytable":"PROJECTD.COMPLETETS"},"seasonality":"1","seriesPlot":"1","varSettings":{"settings":[{"id":1,"role":"dependVariable","variable":"VP__hPA_","accumulate":"accumulateNone","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0}],"accumulate":{"VP__hPA_":"accumulateNone"}},"autocorrNlags":"","addRolesGroup":"ADDITIONAL ROLES","scaleKernel":"","seasonalCyclesPlot":"1","selectDecompPlotsCombo":"defaultDecompPlots","autocorrPlots":"1","crosscorrPlots":"0","crosscorrNlags":"","multiplicative":"Multiplicative","dataTab":"DATA","defaultAutocorrPlots":"Default plots","spectraDetailsGroup":"Details","crossCorrPlotsGroup":"Plots","seasonIregularComp":"Seasonal-irregular component","exponent":"","componentsPlot":"0","commentUnitRoot":"Unit root test analysis","normIacfPlot":"0","seasonalStats":"1","componentsGroup":"Decomposition components","scaleKernelCombo":"scaleKernelDefaultChoice","timeIDProps":{"interval":"month","multiplier":1,"shift":1,"cycleLen":12,"intervalName":"month"},"logadditive":"Log-additive","truncatedKernel":"Truncated kernel","statsSelect":"","descriptiveStats":"1","iacfPlot":"0","normAcfPlot":"0","autocorrNlagsDefaultChoice":"Use default value","selectedDecompPlots":"Selected plots","bartlettKernel":"Bartlett kernel","autoPanel":"1","seasonalComp":"Seasonal component","timeDomainChoice":"Time","plotsGroup":"SERIES PLOTS","exponentCombo":"exponentDefaultChoice","seasonAdjSeriesPlot":"0","crossCorrFuncPlot":"0","decompNote":"Note: Decomposition analysis is available when season length is greater than one. Season length is set on the Data tab in the Additional Roles group.","trendCycleComp":"Trend-cycle component","exponentCustomChoice":"Use custom value","seasonalStatsNote":"Note: Seasonal statistics and Seasonal decomposition are available when season length is greater than one. Season length is set on the Data tab in the Additional Roles group.","arOrder":"2","exponentDefaultChoice":"Use default value","trendStatsNote":"Note: Trend statistics are available when Time ID variable is specified and accumulation method is not None for dependent variable. Accumulation method is set on the Data tab in the Transformations group.","scaleKernelDefaultChoice":"Use default value","crosscorrGroup":"CROSS-CORRELATION ANALYSIS","minperiod":"","statisticsGroup":"STATISTICS","multoradd":"Automatic","analysesTab":"ANALYSES","decompGroup":"DECOMPOSITION ANALYSIS","noDecompPlots":"No plots","decompPlotsGroup":"Plots","spectraAlphaCustomChoice":"Use custom value","componentSelect":"[\"trendCycleComp\",\"seasonalComp\",\"irregularComp\"]","dataGroup":"DATA","autocorrGroup":"AUTOCORRELATION ANALYSIS","kernelFunc":"none","trendStats":"0","decompPanel":"1","dependVariable":"json:[{\"value\":\"VP__hPA_\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","optionsTab":"OPTIONS","crosscorrNlagsDefaultChoice":"Use default value","cycleComp":"Cycle component"}
+]]>
+</TemplateValues>
+</Task>

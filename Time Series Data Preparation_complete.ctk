@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><Task schemaVersion="5.4">
+	<Registration>
+		<Name>Time Series Data Preparation</Name>
+		<Description>Preparing time stamped transaction data into equally intervaled time series data.</Description>
+		<GUID>49a70e66-64c0-4775-9bdb-72831159c5e6</GUID>
+		<Procedures>TIMEDATA</Procedures>
+		<Version>3.8</Version>
+		<Links>
+			<Link href="http://documentation.sas.com/?softwareId=STUDIOMID&amp;softwareVersion=3.8&amp;softwareContextId=tasks&amp;requestor=inapp">SAS Studio Task Reference Guide</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+            <Link href="http://documentation.sas.com/?softwareId=ANMVA&amp;softwareVersion=3.8_15.1&amp;softwareContextId=proc_timedata&amp;requestor=inapp">The TIMEDATA Procedure</Link>
+            <Link href=""> </Link>
+            <Link href=""> </Link>
+			<Link href="http://support.sas.com/training/studio">SAS Tutorials</Link>
+		</Links>
+	</Registration>
+	<Metadata>
+		<DataSources>
+			<DataSource name="dataset" where="true">
+				<Roles>
+					<Role exclude="dependVariable,byVariables" maxVars="1" minVars="0" name="timeID" type="N">Time ID</Role>
+					<Role exclude="timeID,byVariables" minVars="1" name="dependVariable" type="N">Time series variable</Role>
+					<Role exclude="dependVariable,timeID" maxVars="0" minVars="0" name="byVariables" order="true" type="A">Group analysis by</Role>
+				</Roles>
+			</DataSource>
+		</DataSources>
+
+		<Options>
+			<Option inputType="string" name="dataTab">DATA</Option>
+ 			<Option inputType="string" name="dataGroup">DATA</Option>
+ 			<Option inputType="string" name="rolesGroup">ROLES</Option>
+ 			<Option inputType="string" name="varsGroup">Variables</Option>
+			<Option inputType="string" name="addRolesGroup">ADDITIONAL ROLES</Option>
+			
+			<Option inputType="string" name="timeIDPropertyGroup">Properties</Option>
+			<!-- Note: The timeidproperties component is for internal use only. -->
+			<Option inputType="timeidproperties" name="timeIDProps" source="timeID"/>
+			<Option decimalPlaces="0" defaultValue="1" increment="1" inputType="numstepper" invalidMessage="Enter an integer greater than 0 and less than or equal to 10000." maxValue="10000" minValue="1" missingMessage="Enter an integer greater than 0 and less than or equal to 10000." name="seasonality" promptMessage="Enter an integer greater than 0 and less than or equal to 10000." rangeMessage="Enter an integer greater than 0 and less than or equal to 10000." width="5em">Season length:</Option>
+			
+			<Option defaultValue="missingChoice" inputType="combobox" name="missing">Treatment of missing values:</Option>
+				<Option inputType="string" name="missingChoice" returnValue="missing">Missing value</Option>
+				<Option inputType="string" name="averageChoice" returnValue="average">Average value of the accumulated time series</Option>
+				<Option inputType="string" name="minChoice" returnValue="minimum">Minimum value of the accumulated time series</Option>
+				<Option inputType="string" name="medianChoice" returnValue="median">Median value of the accumulated time series</Option>
+				<Option inputType="string" name="maxChoice" returnValue="maximum">Maximum value of the accumulated time series</Option>
+				<Option inputType="string" name="firstChoice" returnValue="first">First nonmissing value of the accumulated time series</Option>
+				<Option inputType="string" name="lastChoice" returnValue="last">Last nonmissing value of the accumulated time series</Option>
+				<Option inputType="string" name="previousChoice" returnValue="previous">The previous period's accumulated nonmissing value</Option>
+				<Option inputType="string" name="nextChoice" returnValue="next">The next period's accumulated nonmissing value</Option>
+				<Option inputType="string" name="numericChoice" returnValue="numeric">Numeric value</Option>
+			<Option defaultValue="0" indent="1" inputType="numbertext" invalidMessage="Enter a number greater than or equal to 0." minValue="0" missingMessage="Enter a number greater than or equal to 0." name="numMissing" promptMessage="Enter a number greater than or equal to 0." rangeMessage="Enter a number greater than or equal to 0." required="true" width="6em">Enter a number to interpret missing value:</Option>
+			
+			<Option inputType="string" name="transformationsTab">TRANSFORMATIONS</Option>
+			<Option inputType="string" name="transformationGroup">TRANSFORMATIONS</Option>
+			<!-- Note: The timeseriesactions component is for internal use only. -->
+			<Option inputType="timeseriesactions" name="varSettings" source="dependVariable" timeid="timeID"/>
+			<Option inputType="string" name="transformationNote">Transformations are available when time series variables are selected.</Option>
+			
+			<!-- Output Tab -->
+			<Option inputType="string" name="outputTab">OUTPUT</Option> 
+ 			<Option inputType="string" name="outputGroup">OUTPUT DATA SET</Option>
+				<Option defaultValue="work.tsPrep" inputType="outputdata" name="outputDSName" required="true" unique="true">Data set name:</Option>
+				
+			<Option inputType="string" name="showDataGroup">Show Output Data</Option>
+			<Option defaultValue="0" inputType="checkbox" name="showData">Show output data</Option>
+			<Option defaultValue="showSubsetDataChoice" inputType="combobox" name="showDataCombo">Show:</Option>
+			<Option inputType="string" name="showSubsetDataChoice">Show subset of output data</Option>
+			<Option inputType="string" name="showAllDataChoice">Show all output data</Option>
+			<Option decimalPlaces="0" defaultValue="10" increment="1" indent="1" inputType="numstepper" invalidMessage="Enter an integer greater than 0 for the number of observations to be shown" minValue="1" missingMessage="Enter an integer greater than 0 for the number of observations to be shown" name="subsetNobs" promptMessage="Enter an integer greater than 0 for the number of observations to be shown" rangeMessage="Enter an integer greater than 0 for the number of observations to be shown" required="true" width="6em">Number of observations to show:</Option>
+			<Option inputType="string" name="subsetTitle">Subset of {dataSetName}</Option>
+		</Options>
+	</Metadata>
+
+	<UI>
+		<Container option="dataTab">
+			<Group open="true" option="dataGroup">
+				<DataItem data="dataset"/>
+			</Group>
+			<Group open="true" option="rolesGroup">
+					<RoleItem role="dependVariable"/>
+                    <OptionChoice option="missing">
+                        <OptionItem option="missingChoice"/>
+                        <OptionItem option="averageChoice"/>
+                        <OptionItem option="minChoice"/>
+                        <OptionItem option="medianChoice"/>
+                        <OptionItem option="maxChoice"/>
+                        <OptionItem option="firstChoice"/>
+                        <OptionItem option="lastChoice"/>
+                        <OptionItem option="previousChoice"/>
+                        <OptionItem option="nextChoice"/>
+                        <OptionItem option="numericChoice"/>
+                    </OptionChoice>
+                    <OptionItem option="numMissing"/>					
+			</Group>
+			<Group option="addRolesGroup">
+				<RoleItem role="timeID"/>
+				<Group open="true" option="timeIDPropertyGroup">
+					<OptionChoice option="timeIDProps"/>
+				</Group>
+				<OptionItem option="seasonality"/>
+				<RoleItem role="byVariables"/>
+			</Group>
+		</Container>
+
+        <!-- TRANSFORMATIONS tab -->
+		<Container option="transformationsTab">
+			<Group open="true" option="transformationGroup">
+				<OptionItem option="transformationNote"/>
+				<OptionItem option="varSettings"/>
+			</Group>
+		</Container>
+		
+        <!-- OUTPUT tab -->
+		<Container option="outputTab">
+			<Group open="true" option="outputGroup">
+				<OptionItem option="outputDSName"/>
+				<Group open="true" option="showDataGroup">
+					<OptionItem option="showData"/>
+					<OptionChoice option="showDataCombo">
+						<OptionItem option="showSubsetDataChoice"/>
+						<OptionItem option="showAllDataChoice"/>
+					</OptionChoice>
+					<OptionItem option="subsetNobs"/>
+				</Group>
+			</Group>
+		</Container>
+	</UI>
+	
+	<Dependencies>
+		<Dependency condition="$dependVariable.size()==0">
+			<Target action="show" conditionResult="true" option="transformationNote"/>
+			<Target action="hide" conditionResult="false" option="transformationNote"/>
+			<Target action="hide" conditionResult="true" option="varSettings"/>
+			<Target action="show" conditionResult="false" option="varSettings"/>
+		</Dependency>
+		<Dependency condition="$dependVariable.size()&gt;=1">
+			<Target action="show" conditionResult="true" option="missing"/>
+			<Target action="hide" conditionResult="false" option="missing"/>
+		</Dependency>
+		<Dependency condition="$timeID.size()&gt;=1">
+			<Target action="show" conditionResult="true" option="timeIDPropertyGroup"/>
+			<Target action="hide" conditionResult="false" option="timeIDPropertyGroup"/>
+		</Dependency>
+		<Dependency condition="$timeID.size()&gt;=1">
+			<Target action="hide" conditionResult="true" option="seasonality"/>
+			<Target action="show" conditionResult="false" option="seasonality"/>
+		</Dependency>
+		<Dependency condition="$MathTool.toInteger($timeIDProps.cycleLen)&gt;1 || $MathTool.toInteger($seasonality)&gt;1">
+			<Target action="set" conditionResult="true" option="varSettings" property="hideSeasonalDiff" value="false"/>
+			<Target action="set" conditionResult="false" option="varSettings" property="hideSeasonalDiff" value="true"/>
+		</Dependency>		
+		<Dependency condition="$missing=='numeric'">
+			<Target action="show" conditionResult="true" option="numMissing"/>
+			<Target action="hide" conditionResult="false" option="numMissing"/>
+		</Dependency>
+		<Dependency condition="($showData == '1')">
+			<Target action="show" conditionResult="true" option="showDataCombo"/>
+			<Target action="hide" conditionResult="false" option="showDataCombo"/>
+		</Dependency>
+		<Dependency condition="($showData == '1' &amp;&amp; $showDataCombo == 'showSubsetDataChoice')">
+			<Target action="show" conditionResult="true" option="subsetNobs"/>
+			<Target action="hide" conditionResult="false" option="subsetNobs"/>
+		</Dependency>
+	</Dependencies>
+
+	<Requirements>
+	</Requirements>
+	
+	<CodeTemplate>
+		<![CDATA[
+#set($dependList = [])
+#foreach($item in $varSettings.get("settings"))
+	#if($item.get("role") == "dependVariable")
+		#set($success=$dependList.add($item))
+	#end
+#end
+
+ods noproctitle;
+
+### Preprocess input data
+#set($preProcessData=0)
+#if($byVariables.size()>0 || $timeID.size()>0)
+#set($preProcessData=1)
+proc sort data=$dataset out=Work.preProcessedData;
+   #if ($dataset.getWhereClause() != '')
+   where $dataset.getWhereClause();
+   #end
+   by #foreach($item in $byVariables) $item #end #foreach($item in $timeID) $item #end;
+run;
+#elseif ($dataset.getWhereClause() != '')
+#set($preProcessData=1)
+data Work.preProcessedData;
+    set $dataset(where=( $dataset.getWhereClause() ));
+run;
+#end
+
+proc timedata data=#if($preProcessData > 0) Work.preProcessedData #else $dataset #end 
+#if($timeID.size()>0) #if($timeIDProps.cycleLen!="" && $timeIDProps.cycleLen!="1") seasonality=$timeIDProps.cycleLen #end 
+#else #if($seasonality && $seasonality!="" && $seasonality!="1") seasonality=$seasonality #end #end out=WORK._tsoutput;
+
+#if ( $byVariables.size() > 0 )   
+   by #foreach( $item in $byVariables ) $item #end; 
+#end
+
+#if ( $timeID.size() > 0 )   
+#################### id statement ##############################
+	id #foreach( $item in $timeID ) $item #end 
+		interval = $timeIDProps.intervalName
+		#if ($missing != "") setmissing = #if($missing != "numeric") $missing #else $numMissing  #end #end;
+#end
+
+#if ( $dependList.size() > 0 )   
+################### var statements #############################
+
+   #foreach($item in $dependList)
+	var $CTMUtil.toSASName($item.variable) / 
+	#if($item.accumulate) accumulate=#if($item.accumulate=="accumulateAvg") average #elseif($item.accumulate=="accumulateTotal") total #else none #end #end
+	#if($item.transformation) transform=#if($item.transformation=="logTrans") log #elseif($item.transformation=="sqrtTrans") sqrt 
+		#elseif($item.transformation=="logisticTrans") logistic #elseif($item.transformation=="boxcoxTrans") boxcox(0) #else none #end #end
+	#if($item.simpleDiff>0) dif=$item.simpleDiff #end
+	#if($item.seasonalDiff && $item.seasonalDiff>0) sdif=$item.seasonalDiff #end
+	#if($timeID.size()<=0 && $missing != "") setmissing=#if($missing != "numeric") $missing #else $numMissing  #end #end
+	;
+   #end
+
+#end
+run;
+
+############################ Rename variables ###########################################################
+data $outputDSName( rename = (
+   #foreach($item in $dependList)
+	#if($item.transformation && $item.transformation!="none") 
+	  #if($item.transformation=="logTrans")            $CTMUtil.toSASName($item.variable) = $CTMUtil.toSASName("log_$item.variable")
+	  #elseif($item.transformation=="sqrtTrans")       $CTMUtil.toSASName($item.variable) = $CTMUtil.toSASName("sqrt_$item.variable")
+	  #elseif($item.transformation=="logisticTrans")   $CTMUtil.toSASName($item.variable) = $CTMUtil.toSASName("logistic_$item.variable")
+	  #elseif($item.transformation=="boxcoxTrans")     $CTMUtil.toSASName($item.variable) = $CTMUtil.toSASName("boxcox0_$item.variable")
+	  #end
+	#end
+   #end
+   ));
+   set WORK._tsoutput;
+run;   
+
+######################## Preview Data #############################################################
+#if ($showData == '1')
+#if($showDataCombo == 'showSubsetDataChoice')
+#set($finalTitle = $subsetTitle.replace("{dataSetName}", "${outputDSName.get('value')}"))
+#end
+proc print data=$outputDSName#if($showDataCombo == 'showSubsetDataChoice')(obs=$subsetNobs)#end;
+	title "#if($showDataCombo == 'showSubsetDataChoice')$finalTitle#{else}${outputDSName.get('value')}#end";
+	run;
+	title;
+#end
+
+######################## Clean up #############################################################
+#if( $preProcessData > 0 )
+proc delete data=Work.preProcessedData; run;
+#end
+
+proc delete data=WORK._tsoutput;
+run;
+
+]]>
+	</CodeTemplate>
+
+<TemplateValues version="3.8">
+<![CDATA[
+{"showData":"1","addRolesGroup":"ADDITIONAL ROLES","timeID":"json:[{\"value\":\"Date\",\"type\":\"Numeric\",\"length\":8,\"format\":\"MMDDYY10.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","nextChoice":"The next period's accumulated nonmissing value","firstChoice":"First nonmissing value of the accumulated time series","maxChoice":"Maximum value of the accumulated time series","averageChoice":"Average value of the accumulated time series","sasOS":"Linux LIN X64 2.6.32-754.6.3.el6.x86_64","timeIDPropertyGroup":"Properties","varsGroup":"Variables","dataTab":"DATA","subsetNobs":"10","rolesGroup":"ROLES","showDataCombo":"showAllDataChoice","missing":"missing","showAllDataChoice":"Show all output data","transformationNote":"Transformations are available when time series variables are selected.","subsetTitle":"Subset of {dataSetName}","byVariables":"","medianChoice":"Median value of the accumulated time series","numMissing":"0","showSubsetDataChoice":"Show subset of output data","timeIDProps":{"interval":"month","multiplier":1,"shift":1,"cycleLen":12,"intervalName":"month"},"missingChoice":"Missing value","dataGroup":"DATA","lastChoice":"Last nonmissing value of the accumulated time series","showDataGroup":"Show Output Data","sasVersion":"9.46","outputGroup":"OUTPUT DATA SET","dependVariable":"json:[{\"value\":\"TMax\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"Tmin\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"Rain__mm_\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"Evap_mm_\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"Radiation\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"VP__hPA_\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"RHmaxT\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"},{\"value\":\"RHminT\",\"type\":\"Numeric\",\"length\":8,\"format\":\"BEST.\",\"informat\":\"\",\"className\":\"RoleObject\"}]","numericChoice":"Numeric value","outputTab":"OUTPUT","outputDSName":"projectd.completets","transformationsTab":"TRANSFORMATIONS","dataset":{"librarytable":"PROJECTD.WEATHER1"},"seasonality":"1","minChoice":"Minimum value of the accumulated time series","previousChoice":"The previous period's accumulated nonmissing value","transformationGroup":"TRANSFORMATIONS","varSettings":{"settings":[{"id":1,"role":"dependVariable","variable":"TMax","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":2,"role":"dependVariable","variable":"Tmin","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":3,"role":"dependVariable","variable":"Rain__mm_","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":4,"role":"dependVariable","variable":"Evap_mm_","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":5,"role":"dependVariable","variable":"Radiation","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":6,"role":"dependVariable","variable":"VP__hPA_","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":7,"role":"dependVariable","variable":"RHmaxT","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0},{"id":8,"role":"dependVariable","variable":"RHminT","accumulate":"accumulateAvg","transformation":"noneTrans","simpleDiff":0,"seasonalDiff":0}],"accumulate":{"TMax":"accumulateAvg","Tmin":"accumulateAvg","Rain__mm_":"accumulateAvg","Evap_mm_":"accumulateAvg","Radiation":"accumulateAvg","VP__hPA_":"accumulateAvg","RHmaxT":"accumulateAvg","RHminT":"accumulateAvg"}}}
+]]>
+</TemplateValues>
+</Task>
